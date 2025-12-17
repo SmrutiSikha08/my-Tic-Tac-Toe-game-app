@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe Pro | Classic Strategy Game</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Orbitron:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/confetti.js/dist/confetti.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Network Status Indicator -->
+    <div class="network-status" id="network-status">
+        <i class="fas fa-wifi"></i>
+        <span>Online</span>
+    </div>
+
+    <div class="game-container">
+        <!-- Header Section -->
+        <header class="game-header">
+            <div class="header-content">
+                <h1><i class="fas fa-crown"></i> TIC TAC TOE PRO</h1>
+                <p class="game-subtitle">The Ultimate Strategy Experience</p>
+            </div>
+            
+            <!-- Game Mode Selector -->
+            <div class="game-mode-selector">
+                <button class="mode-btn active-mode" id="mode-friend">
+                    <i class="fas fa-user-friends"></i>
+                    <span>Play with Friend</span>
+                </button>
+                <button class="mode-btn" id="mode-computer">
+                    <i class="fas fa-robot"></i>
+                    <span>Play with AI</span>
+                </button>
+                <div class="difficulty-selector" id="difficulty-selector">
+                    <button class="diff-btn" data-difficulty="easy">Easy</button>
+                    <button class="diff-btn active-diff" data-difficulty="medium">Medium</button>
+                    <button class="diff-btn" data-difficulty="hard">Hard</button>
+                </div>
+            </div>
+            
+            <!-- Player Info Section -->
+            <div class="player-info">
+                <div class="player active-player" id="player-x">
+                    <div class="player-avatar">
+                        <div class="avatar-icon">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        <button class="avatar-change" onclick="changeAvatar('x')">
+                            <i class="fas fa-pencil-alt"></i>
+                        </button>
+                    </div>
+                    <div class="player-details">
+                        <input type="text" class="player-name" id="player-x-name" value="Player X" maxlength="10">
+                        <p class="player-status"><i class="fas fa-clock"></i> Current Turn</p>
+                        <div class="player-timer" id="player-x-timer">00:30</div>
+                    </div>
+                </div>
+                
+                <div class="vs-circle">
+                    <span>VS</span>
+                    <div class="win-streak" id="win-streak">
+                        <i class="fas fa-fire"></i>
+                        <span>0</span>
+                    </div>
+                </div>
+                
+                <div class="player" id="player-o">
+                    <div class="player-avatar">
+                        <div class="avatar-icon">
+                            <i class="far fa-circle"></i>
+                        </div>
+                        <button class="avatar-change" onclick="changeAvatar('o')">
+                            <i class="fas fa-pencil-alt"></i>
+                        </button>
+                    </div>
+                    <div class="player-details">
+                        <input type="text" class="player-name" id="player-o-name" value="Player O" maxlength="10">
+                        <p class="player-status"><i class="fas fa-hourglass-half"></i> Waiting</p>
+                        <div class="player-timer" id="player-o-timer">00:30</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Game Area -->
+        <main class="game-main">
+            <!-- Achievement Popup -->
+            <div class="achievement-popup" id="achievement-popup">
+                <div class="achievement-content">
+                    <i class="fas fa-trophy"></i>
+                    <div class="achievement-text">
+                        <h3>First Win!</h3>
+                        <p>You won your first game!</p>
+                    </div>
+                    <button class="close-achievement" onclick="closeAchievement()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Game Stats -->
+            <div class="game-stats">
+                <div class="stat-box" id="stat-moves">
+                    <div class="stat-icon">
+                        <i class="fas fa-chess-board"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h4>Moves</h4>
+                        <p class="stat-value" id="move-count">0</p>
+                    </div>
+                </div>
+                <div class="stat-box" id="stat-round">
+                    <div class="stat-icon">
+                        <i class="fas fa-flag-checkered"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h4>Round</h4>
+                        <p class="stat-value" id="round-count">1</p>
+                    </div>
+                </div>
+                <div class="stat-box" id="stat-timer">
+                    <div class="stat-icon">
+                        <i class="fas fa-stopwatch"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h4>Turn Timer</h4>
+                        <p class="stat-value" id="turn-timer">30s</p>
+                    </div>
+                </div>
+                <div class="stat-box" id="stat-best">
+                    <div class="stat-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h4>Best Score</h4>
+                        <p class="stat-value" id="best-score">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Board -->
+            <div class="game-board-container">
+                <div class="board-grid" id="board-grid">
+                    <!-- Top row -->
+                    <div class="board-cell" data-index="0">
+                        <div class="cell-content"></div>
+                        <div class="cell-hover"></div>
+                        <div class="cell-glow"></div>
+                    </div>
+                    <div class="board-cell" data-index="1">
+                        <div class="cell-content"></div>
+                        <div class="cell-hover"></div>
+                        <div class="cell-glow"></div>
+                    </div>
+                    <div class="board-cell" data-index="2">
+                        <div class="cell-content"></div>
+                        <div class="cell-hover"></div>
+                        <div class="cell-glow"></div>
+                    </div>
+                    
+                    <!-- Middle row -->
+                    <div class="board-cell" data-index="3">
+                        <div class="cell-content"></div>
+                        <div class="cell-hover"></div>
+                        <div class="cell-glow"></div>
+                    </div>
+                    <div class="board-cell" data-index="4">
+                        <div class="cell-content"></div>
+                        <div class="cell-hover"></div>
+                        <div class="cell-glow"></div>
+                    </div>
+                    <div class="board-cell" data-index="5">
+                        <div class="cell-content"></div>
+                        <div class="cell-hover"></div>
+                        <div class="cell-glow"></div>
+                    </div>
+                    
+                    <!-- Bottom row -->
+                    <div class="board-cell" data-index="6">
+                        <div class="cell-content"></div>
+                        <div class="cell-hover"></div>
+                        <div class="cell-glow"></div>
+                    </div>
+                    <div class="board-cell" data-index="7">
+                        <div class="cell-content"></div>
+                        <div class="cell-hover"></div>
+                        <div class="cell-glow"></div>
+                    </div>
+                    <div class="board-cell" data-index="8">
+                        <div class="cell-content"></div>
+                        <div class="cell-hover"></div>
+                        <div class="cell-glow"></div>
+                    </div>
+                    
+                    <!-- Winning line overlay -->
+                    <div class="winning-line" id="winning-line"></div>
+                    
+                    <!-- Board grid lines -->
+                    <div class="grid-line horizontal-line top-line"></div>
+                    <div class="grid-line horizontal-line middle-line"></div>
+                    <div class="grid-line vertical-line left-line"></div>
+                    <div class="grid-line vertical-line right-line"></div>
+                </div>
+                
+                <div class="game-status" id="game-status">
+                    <div class="status-icon">
+                        <i class="fas fa-play-circle"></i>
+                    </div>
+                    <span class="status-text">Player X's Turn</span>
+                    <div class="status-badge" id="current-turn-badge">
+                        <i class="fas fa-times"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Controls -->
+            <div class="game-controls">
+                <button class="control-btn btn-primary" onclick="resetGame()" id="new-game-btn">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>New Game</span>
+                </button>
+                <button class="control-btn btn-secondary" id="undo-btn">
+                    <i class="fas fa-undo"></i>
+                    <span>Undo Move</span>
+                </button>
+                <button class="control-btn btn-tertiary" id="sound-toggle">
+                    <i class="fas fa-volume-up"></i>
+                    <span>Sound On</span>
+                </button>
+                <button class="control-btn btn-quaternary" onclick="openSettings()" id="settings-btn">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </button>
+                <button class="control-btn btn-quinary" onclick="shareGame()" id="share-btn">
+                    <i class="fas fa-share-alt"></i>
+                    <span>Share</span>
+                </button>
+            </div>
+
+            <!-- Share Panel -->
+            <div class="share-panel" id="share-panel">
+                <div class="share-header">
+                    <h3>Share Game</h3>
+                    <button class="close-share" onclick="closeSharePanel()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="share-options">
+                    <button class="share-option" onclick="shareViaWhatsApp()">
+                        <i class="fab fa-whatsapp"></i>
+                        <span>WhatsApp</span>
+                    </button>
+                    <button class="share-option" onclick="copyGameLink()">
+                        <i class="fas fa-link"></i>
+                        <span>Copy Link</span>
+                    </button>
+                    <button class="share-option" onclick="shareViaTwitter()">
+                        <i class="fab fa-twitter"></i>
+                        <span>Twitter</span>
+                    </button>
+                </div>
+                <p class="share-message">"Play Tic Tac Toe Pro 🎮 Challenge me now!"</p>
+            </div>
+        </main>
+
+        <!-- Advertisement Banner -->
+        <div class="ad-banner" id="ad-banner">
+            <div class="ad-content">
+                <span class="ad-label">Advertisement</span>
+                <div class="ad-placeholder">
+                    <p>Your ad could be here</p>
+                </div>
+                <button class="ad-skip" onclick="skipAd()">
+                    Skip Ad <i class="fas fa-forward"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Game History & Score -->
+        <section class="game-history">
+            <div class="history-header">
+                <h2><i class="fas fa-history"></i> Game History</h2>
+                <button class="history-reset" onclick="resetHistory()">
+                    <i class="fas fa-trash-alt"></i> Reset History
+                </button>
+            </div>
+            
+            <div class="score-board">
+                <div class="score-item x-wins" id="score-x">
+                    <div class="score-icon">
+                        <i class="fas fa-times"></i>
+                    </div>
+                    <div class="score-details">
+                        <h3>X Wins</h3>
+                        <p class="score-value" id="x-wins">0</p>
+                    </div>
+                </div>
+                <div class="score-item draws" id="score-draw">
+                    <div class="score-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <div class="score-details">
+                        <h3>Draws</h3>
+                        <p class="score-value" id="draws">0</p>
+                    </div>
+                </div>
+                <div class="score-item o-wins" id="score-o">
+                    <div class="score-icon">
+                        <i class="far fa-circle"></i>
+                    </div>
+                    <div class="score-details">
+                        <h3>O Wins</h3>
+                        <p class="score-value" id="o-wins">0</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="history-panel">
+                <div class="panel-header">
+                    <h3><i class="fas fa-list-ol"></i> Move History</h3>
+                    <button class="panel-toggle" onclick="toggleHistoryPanel()">
+                        <i class="fas fa-chevron-up" id="history-toggle-icon"></i>
+                    </button>
+                </div>
+                <div class="log-container" id="move-history">
+                    <div class="log-empty">
+                        <i class="fas fa-chess-board"></i>
+                        <p>No moves yet. Make the first move!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="game-footer">
+            <div class="footer-content">
+                <p class="footer-brand">
+                    <i class="far fa-copyright"></i> 2026 Tic Tac Toe Pro | 
+                    Designed with <i class="fas fa-heart"></i> for Gamers
+                </p>
+                <div class="footer-links">
+                    <button class="footer-link" onclick="showHowToPlay()">
+                        <i class="fas fa-question-circle"></i> How to Play
+                    </button>
+                    <button class="footer-link" onclick="openSettings()">
+                        <i class="fas fa-cog"></i> Settings
+                    </button>
+                    <button class="footer-link" onclick="showAbout()">
+                        <i class="fas fa-info-circle"></i> About
+                    </button>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Settings Panel (Side Menu) -->
+        <div class="settings-panel" id="settings-panel">
+            <div class="settings-header">
+                <h2><i class="fas fa-cog"></i> Settings</h2>
+                <button class="settings-close" onclick="closeSettings()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="settings-content">
+                <div class="settings-section">
+                    <h3><i class="fas fa-palette"></i> Theme</h3>
+                    <div class="theme-options">
+                        <button class="theme-option" onclick="setTheme('dark')" data-theme="dark">
+                            <i class="fas fa-moon"></i> Dark Mode
+                        </button>
+                        <button class="theme-option" onclick="setTheme('light')" data-theme="light">
+                            <i class="fas fa-sun"></i> Light Mode
+                        </button>
+                        <button class="theme-option active-theme" onclick="setTheme('default')" data-theme="default">
+                            <i class="fas fa-gamepad"></i> Default Theme
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h3><i class="fas fa-robot"></i> AI Difficulty</h3>
+                    <div class="difficulty-slider">
+                        <input type="range" min="1" max="3" value="2" class="slider" id="ai-difficulty">
+                        <div class="slider-labels">
+                            <span>Easy</span>
+                            <span>Medium</span>
+                            <span>Hard</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h3><i class="fas fa-clock"></i> Game Timer</h3>
+                    <div class="timer-settings">
+                        <label>
+                            <input type="checkbox" id="enable-timer" checked>
+                            Enable Turn Timer
+                        </label>
+                        <div class="timer-value">
+                            <span>Time per turn:</span>
+                            <input type="number" id="timer-seconds" min="10" max="120" value="30"> seconds
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h3><i class="fas fa-user"></i> Player Names</h3>
+                    <div class="player-names-settings">
+                        <div class="name-input">
+                            <label for="player-x-setting">Player X:</label>
+                            <input type="text" id="player-x-setting" value="Player X" maxlength="10">
+                        </div>
+                        <div class="name-input">
+                            <label for="player-o-setting">Player O:</label>
+                            <input type="text" id="player-o-setting" value="Player O" maxlength="10">
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn-primary save-settings" onclick="saveSettings()">
+                    <i class="fas fa-save"></i> Save Settings
+                </button>
+            </div>
+        </div>
+
+        <!-- Win Animation Overlay -->
+        <div class="win-overlay" id="win-overlay">
+            <div class="confetti-container" id="confetti-container"></div>
+            <div class="win-content">
+                <div class="win-icon" id="win-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <h2 id="win-message">Player X Wins!</h2>
+                <p id="win-details">in 5 moves</p>
+                <div class="win-streak-display">
+                    <i class="fas fa-fire"></i>
+                    <span>Win Streak: <strong id="current-streak">0</strong></span>
+                </div>
+                <div class="win-buttons">
+                    <button class="btn-primary win-btn" onclick="continueGame()">
+                        <i class="fas fa-forward"></i> Continue
+                    </button>
+                    <button class="btn-secondary win-btn" onclick="shareVictory()">
+                        <i class="fas fa-share"></i> Share Victory
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- How to Play Modal -->
+        <div class="modal-overlay" id="instructions-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-graduation-cap"></i> How to Play Tic Tac Toe</h2>
+                    <button class="modal-close" onclick="closeInstructions()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="instruction-section">
+                        <h3><i class="fas fa-chess-board"></i> Game Objective</h3>
+                        <p>Be the first to get three of your marks in a row (horizontally, vertically, or diagonally).</p>
+                    </div>
+                    
+                    <div class="instruction-section">
+                        <h3><i class="fas fa-users"></i> Player Turns</h3>
+                        <p>Players alternate placing X and O on the 3x3 grid.</p>
+                        <div class="turn-example">
+                            <div class="example-cell x-example">X</div>
+                            <div class="example-cell o-example">O</div>
+                            <div class="example-cell x-example">X</div>
+                        </div>
+                    </div>
+                    
+                    <div class="instruction-section">
+                        <h3><i class="fas fa-trophy"></i> Winning Patterns</h3>
+                        <div class="winning-patterns">
+                            <div class="pattern-row">
+                                <div class="pattern-cell win">X</div>
+                                <div class="pattern-cell win">X</div>
+                                <div class="pattern-cell win">X</div>
+                            </div>
+                            <div class="pattern-col">
+                                <div class="pattern-cell win">O</div>
+                                <div class="pattern-cell win">O</div>
+                                <div class="pattern-cell win">O</div>
+                            </div>
+                            <div class="pattern-diag">
+                                <div class="pattern-cell win">X</div>
+                                <div class="pattern-cell win">X</div>
+                                <div class="pattern-cell win">X</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="instruction-section">
+                        <h3><i class="fas fa-handshake"></i> Draw Condition</h3>
+                        <p>If all 9 squares are filled and no player has three in a row, the game ends in a draw.</p>
+                    </div>
+                    
+                    <div class="instruction-section">
+                        <h3><i class="fas fa-lightbulb"></i> Pro Tips</h3>
+                        <ul class="pro-tips">
+                            <li><i class="fas fa-star"></i> Control the center square (position 5)</li>
+                            <li><i class="fas fa-star"></i> Take the corners for better opportunities</li>
+                            <li><i class="fas fa-star"></i> Watch for two-in-a-row threats</li>
+                            <li><i class="fas fa-star"></i> Create forks (multiple winning threats)</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-primary start-playing" onclick="closeInstructions()">
+                        <i class="fas fa-play"></i> Start Playing
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Avatar Selection Modal -->
+        <div class="modal-overlay" id="avatar-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-user-astronaut"></i> Choose Avatar</h2>
+                    <button class="modal-close" onclick="closeAvatarModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="avatar-options" id="avatar-options">
+                        <!-- Avatars will be populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Offline Warning -->
+        <div class="offline-warning" id="offline-warning">
+            <div class="offline-content">
+                <i class="fas fa-wifi-slash"></i>
+                <h3>No Internet Connection</h3>
+                <p>Please check your internet connection to continue playing.</p>
+                <p><small>Some features may be limited while offline.</small></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script src="script.js"></script>
+    
+    <!-- Vibration API polyfill for mobile -->
+    <script>
+        if (!window.navigator.vibrate) {
+            window.navigator.vibrate = function() { return false; };
+        }
+    </script>
+</body>
+</html>
